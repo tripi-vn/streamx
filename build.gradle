@@ -12,6 +12,7 @@ repositories {
 }
 
 dependencies {
+    compile group: 'com.codahale.metrics', name: 'metrics-core', version: '3.0.2'
     compile group: 'org.apache.kafka', name: 'kafka-streams', version: '2.4.1'
     compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.4.1'
     compile group: 'com.djdch.log4j', name: 'log4j-staticshutdown', version: '1.1.0'
