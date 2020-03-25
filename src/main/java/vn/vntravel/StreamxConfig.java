@@ -2,6 +2,7 @@ package vn.vntravel;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import vn.vntravel.consumer.ConsumerFactory;
 import vn.vntravel.util.AbstractConfig;
 import vn.vntravel.util.StreamxOptionParser;
 
@@ -13,6 +14,11 @@ public class StreamxConfig extends AbstractConfig {
     public String log_level;
     public final Properties kafkaProperties;
     public String clientID;
+
+    public ConsumerFactory producerFactory; // producerFactory has precedence over producerType
+//    public final Properties customProducerProperties;
+    public String consumerType;
+    public String topicFetcher;
 
     public StreamxConfig() {
         kafkaProperties = new Properties();
@@ -29,6 +35,10 @@ public class StreamxConfig extends AbstractConfig {
     private void setup(OptionSet options, Properties properties) {
         this.log_level = fetchOption("log_level", options, properties, null);
         this.clientID           = fetchOption("client_id", options, properties, "streamx");
+
+        this.producerFactory    = fetchConsumerFactory(options, properties);
+        this.consumerType       = fetchOption("consumer", options, properties, "kafka");
+        this.topicFetcher       = fetchOption("topic_fetcher", options, properties, "");
 
         String kafkaBootstrapServers = fetchOption("kafka.bootstrap.servers", options, properties, null);
         if ( kafkaBootstrapServers != null )
@@ -88,6 +98,24 @@ public class StreamxConfig extends AbstractConfig {
         return p;
     }
 
+    protected ConsumerFactory fetchConsumerFactory(OptionSet options, Properties properties) {
+        String name = "custom_consumer.factory";
+        String strOption = fetchOption(name, options, properties, null);
+        if ( strOption != null ) {
+            try {
+                Class<?> clazz = Class.forName(strOption);
+                return ConsumerFactory.class.cast(clazz.newInstance());
+            } catch ( ClassNotFoundException e ) {
+                usageForOptions("Invalid value for " + name + ", class not found", "--" + name);
+            } catch ( IllegalAccessException | InstantiationException | ClassCastException e) {
+                usageForOptions("Invalid value for " + name + ", class instantiation error", "--" + name);
+            }
+            return null; // unreached
+        } else {
+            return null;
+        }
+    }
+
     @Override
     protected StreamxOptionParser buildOptionParser() {
         final StreamxOptionParser parser = new StreamxOptionParser();
@@ -103,5 +131,9 @@ public class StreamxConfig extends AbstractConfig {
         parser.separator();
 
         return parser;
+    }
+
+    public Properties getKafkaProperties() {
+        return kafkaProperties;
     }
 }

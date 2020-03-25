@@ -2,6 +2,8 @@ package vn.vntravel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import vn.vntravel.consumer.AbstractConsumer;
+import vn.vntravel.consumer.StreamxKafkaConsumer;
 import vn.vntravel.replication.HeartbeatNotifier;
 import vn.vntravel.replication.Replicator;
 import vn.vntravel.util.StoppableTask;
@@ -18,7 +20,7 @@ public class StreamxContext {
     private final StreamxConfig config;
     private Replicator replicator;
     private Thread terminationThread;
-
+    private AbstractConsumer consumer;
     private volatile Exception error;
 
     private final HeartbeatNotifier heartbeatNotifier;
@@ -62,6 +64,23 @@ public class StreamxContext {
             this.terminationThread = spawnTerminateThread();
         }
         return this.terminationThread;
+    }
+
+    public AbstractConsumer getConsumer() throws IOException {
+        if (this.consumer != null)
+            return this.consumer;
+        if ( this.config.producerFactory != null ) {
+            this.consumer = this.config.producerFactory.createConsumer(this);
+        } else {
+            switch ( this.config.consumerType ) {
+                case "kafka":
+                    this.consumer = new StreamxKafkaConsumer(this, this.config.getKafkaProperties(), this.config.topicFetcher);
+                    break;
+                default:
+                    throw new RuntimeException("Unknown consumer type: " + this.config.consumerType);
+            }
+        }
+        return this.consumer;
     }
 
     private Thread spawnTerminateThread() {

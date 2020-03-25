@@ -4,6 +4,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import vn.vntravel.StreamxContext;
+import vn.vntravel.util.StoppableTask;
 
 public abstract class AbstractConsumer {
     protected final StreamxContext context;
@@ -30,5 +31,9 @@ public abstract class AbstractConsumer {
 //        this.messagePublishTimer = metricRegistry.timer(metrics.metricName("message", "publish", "time"));
 //        this.messageLatencyTimer = metricRegistry.timer(metrics.metricName("message", "publish", "age"));
 //        this.messageLatencySloViolationCount = metricRegistry.counter(metrics.metricName("message", "publish", "age", "slo_violation"));
+    }
+
+    public StoppableTask getStoppableTask() {
+        return null;
     }
 }

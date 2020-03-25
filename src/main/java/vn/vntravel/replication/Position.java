@@ -42,7 +42,7 @@ public class Position implements Serializable {
     }
 
     public String toCommandline() {
-        String gtid = partionPosition.getGtidSetStr();
+        String gtid = null;// partionPosition.getGtidSetStr();
         if ( gtid != null )
             return gtid;
         else
