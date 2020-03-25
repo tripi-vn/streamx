@@ -28,7 +28,7 @@ public class StreamxConfig extends AbstractConfig {
 
     private void setup(OptionSet options, Properties properties) {
         this.log_level = fetchOption("log_level", options, properties, null);
-        this.clientID           = fetchOption("client_id", options, properties, "maxwell");
+        this.clientID           = fetchOption("client_id", options, properties, "streamx");
 
         String kafkaBootstrapServers = fetchOption("kafka.bootstrap.servers", options, properties, null);
         if ( kafkaBootstrapServers != null )
@@ -69,7 +69,7 @@ public class StreamxConfig extends AbstractConfig {
         }
 
         if (options.has("help"))
-            usage("Help for Maxwell:", parser, (String) options.valueOf("help"));
+            usage("Help for Streamx:", parser, (String) options.valueOf("help"));
 
         setup(options, properties);
 
