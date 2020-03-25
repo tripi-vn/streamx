@@ -11,23 +11,7 @@
       <change afterPath="$PROJECT_DIR$/../kafka/src/main/java/CustomSerializer.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../kafka/src/main/java/IKafkaConstants.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../kafka/src/main/java/ProducerCreator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/Streamx.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/StreamxConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/StreamxContext.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/replication/BrokerConnectorReplicator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/replication/HeartbeatNotifier.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/replication/Replicator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/util/AbstractConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/util/Logging.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/util/RunLoopProcess.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/util/RunState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/util/StoppableTask.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/util/StoppableTaskState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/util/StreamxHelpFormatter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/util/StreamxOptionParser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/vn/vntravel/util/TaskManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/log4j2.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -662,7 +646,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1585129306212" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1585129621183" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
   </component>
@@ -708,12 +692,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1585123705484</updated>
-      <workItem from="1585123708975" duration="4859000" />
+      <workItem from="1585123708975" duration="5110000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="4859000" />
+    <option name="totallyTimeSpent" value="5110000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="55" y="25" width="1865" height="1055" extended-state="6" />
@@ -727,7 +711,7 @@
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24958768" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Build" weight="0.32972974" />
-      <window_info active="true" anchor="bottom" id="Terminal" visible="true" weight="0.32972974" />
+      <window_info active="true" anchor="bottom" id="Terminal" visible="true" weight="0.6367568" />
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Messages" weight="0.32972974" />
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
