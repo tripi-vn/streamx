@@ -1,7 +1,9 @@
 package vn.vntravel.consumer;
 
 import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,14 +11,25 @@ import vn.vntravel.StreamxContext;
 import vn.vntravel.util.StoppableTask;
 import vn.vntravel.util.StoppableTaskState;
 
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
+
+class StreamxKafkaCallback {
+
+}
 
 public class StreamxKafkaConsumer extends AbstractConsumer {
     private final StreamxKafkaConsumerWorker worker;
     public StreamxKafkaConsumer(StreamxContext context, Properties kafkaProperties, String kafkaTopic) {
         super(context);
         this.worker = new StreamxKafkaConsumerWorker(context, kafkaProperties, kafkaTopic);
+        Thread thread = new Thread(this.worker, "streamx-kafka-worker");
+        thread.setDaemon(true);
+        thread.start();
     }
 }
 
@@ -31,6 +44,14 @@ class StreamxKafkaConsumerWorker extends AbstractAsyncConsumer implements Runnab
     public StreamxKafkaConsumerWorker(StreamxContext context, String kafkaTopic, Consumer<String,String> consumer) {
         super(context);
         this.kafka = consumer;
+
+        TopicPartition topicPartition = new TopicPartition("core_backoffice_test", 0);
+        List<TopicPartition> topics = Arrays.asList(topicPartition);
+        this.kafka.assign(topics);
+        this.kafka.seekToEnd(topics);
+        long current = consumer.position(topicPartition);
+        this.kafka.seek(topicPartition, current);
+
         if ( kafkaTopic == null ) {
             this.topic = "maxwell";
         } else {
@@ -49,9 +70,18 @@ class StreamxKafkaConsumerWorker extends AbstractAsyncConsumer implements Runnab
         this.thread = Thread.currentThread();
         while ( true ) {
             try {
-
+                ConsumerRecords<String, String> consumerRecords = kafka.poll(Duration.ofMillis(1000));
+                //print each record.
+                consumerRecords.forEach(record -> {
+                    System.out.println("Record Key " + record.key());
+                    System.out.println("Record value " + record.value());
+                    System.out.println("Record partition " + record.partition());
+                    System.out.println("Record offset " + record.offset());
+                });
+                // commits the offset of record to broker.
+                kafka.commitAsync();
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
         }
     }
