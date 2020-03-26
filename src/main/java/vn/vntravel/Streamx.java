@@ -2,6 +2,8 @@ package vn.vntravel;
 
 import com.djdch.log4j.StaticShutdownCallbackRegistry;
 import org.slf4j.LoggerFactory;
+import vn.vntravel.merging.MergeParser;
+import vn.vntravel.merging.MergeTopicModel;
 import vn.vntravel.replication.BrokerConnectorReplicator;
 import vn.vntravel.replication.Replicator;
 import vn.vntravel.util.Logging;
@@ -9,6 +11,7 @@ import org.slf4j.Logger;
 
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.List;
 
 public class Streamx implements Runnable {
 
@@ -80,6 +83,8 @@ public class Streamx implements Runnable {
 
     public static void main(String[] args) {
         try {
+            MergeParser mergeParser = new MergeParser();
+            List<MergeTopicModel> mergeTopicModels = mergeParser.parse("merge.properties");
             Logging.setupLogBridging();
             StreamxConfig config = new StreamxConfig(args);
 
