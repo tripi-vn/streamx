@@ -7,15 +7,15 @@ public class MergeTopicModel {
 
     private List<String> topics;
     private List<Map<String, String>> mergerMaps;
-    private Map<String, List<String>> excludeMap;
-    private Map<String, List<String>> includeMap;
+    private Map<String, List<String>> excludeColumn;
+    private Map<String, List<String>> includeColumn;
 
     public MergeTopicModel(List<String> topics, List<Map<String, String>> mergerMaps,
                            Map<String, List<String>> excludeMap, Map<String, List<String>> includeMap) {
         this.topics = topics;
         this.mergerMaps = mergerMaps;
-        this.excludeMap = excludeMap;
-        this.includeMap = includeMap;
+        this.excludeColumn = excludeMap;
+        this.includeColumn = includeMap;
     }
 
     public List<String> getTopics() {
@@ -34,19 +34,19 @@ public class MergeTopicModel {
         this.mergerMaps = mergerMaps;
     }
 
-    public Map<String, List<String>> getExcludeMap() {
-        return excludeMap;
+    public Map<String, List<String>> getExcludeColumn() {
+        return excludeColumn;
     }
 
-    public void setExcludeMap(Map<String, List<String>> excludeMap) {
-        this.excludeMap = excludeMap;
+    public void setExcludeColumn(Map<String, List<String>> excludeMap) {
+        this.excludeColumn = excludeMap;
     }
 
-    public Map<String, List<String>> getIncludeMap() {
-        return includeMap;
+    public Map<String, List<String>> getIncludeColumn() {
+        return includeColumn;
     }
 
-    public void setIncludeMap(Map<String, List<String>> includeMap) {
-        this.includeMap = includeMap;
+    public void setIncludeColumn(Map<String, List<String>> includeMap) {
+        this.includeColumn = includeMap;
     }
 }

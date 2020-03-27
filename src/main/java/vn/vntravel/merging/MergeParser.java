@@ -33,21 +33,21 @@ public class MergeParser {
         String[] merges = mergeString.split(Pattern.quote("]"));
         List<String> topics = new ArrayList<>();
         List<Map<String, String>> mergeMaps = new ArrayList<>();
-        Map<String, List<String>> excludeMap = new HashMap<>();
-        Map<String, List<String>> includeMap = new HashMap<>();
+        Map<String, List<String>> excludeColumn = new HashMap<>();
+        Map<String, List<String>> includeColumn = new HashMap<>();
 
         findTopicAndColumnJoin(topics, mergeMaps, merges[0].split(Pattern.quote("}")));
-        findExcludeAndInclude(excludeMap, includeMap, merges[1], topics);
+        findExcludeAndInclude(excludeColumn, includeColumn, merges[1], topics);
 
-        return new MergeTopicModel(topics, mergeMaps, excludeMap, includeMap);
+        return new MergeTopicModel(topics, mergeMaps, excludeColumn, includeColumn);
     }
 
-    private void findExcludeAndInclude(Map<String, List<String>> excludeMap, Map<String, List<String>> includeMap, String findString, List<String> topics) {
+    private void findExcludeAndInclude(Map<String, List<String>> excludeColumn, Map<String, List<String>> includeColumn, String findString, List<String> topics) {
         findString = removeSpecialCharacter(findString);
         if (findString.length() <= 1) return;
         for (String topic : topics) {
-            excludeMap.put(topic, new ArrayList<>());
-            includeMap.put(topic, new ArrayList<>());
+            excludeColumn.put(topic, new ArrayList<>());
+            includeColumn.put(topic, new ArrayList<>());
         }
         StringTokenizer stringTokenizer = new StringTokenizer(findString);
         boolean isInclude = false;
@@ -63,11 +63,11 @@ public class MergeParser {
             }
             String[] columnString = value.split(Pattern.quote("."));
             if (isInclude) {
-                excludeMap.get(columnString[0]).add(columnString[1]);
-            } else includeMap.get(columnString[0]).add(columnString[1]);
+                excludeColumn.get(columnString[0]).add(columnString[1]);
+            } else includeColumn.get(columnString[0]).add(columnString[1]);
         }
-        excludeMap.values().removeIf(entry -> entry.size() == 0);
-        includeMap.values().removeIf(entry -> entry.size() == 0);
+        excludeColumn.values().removeIf(value -> value.size() == 0);
+        includeColumn.values().removeIf(value -> value.size() == 0);
     }
 
     private void findTopicAndColumnJoin(List<String> topics, List<Map<String, String>> mergeMaps, String[] findStrings) {
