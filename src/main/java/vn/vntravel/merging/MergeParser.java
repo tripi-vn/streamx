@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 public class MergeParser {
 
     private Properties properties;
+    private String COLUMN_PATTERN = "^\\w+\\.\\w+|\\w+.\\*$";
+    private String REMOVE_CHARACTER_SPECIAL_PATTERN = "[^a-zA-Z0-9\\s\\.\\_\\*+]";
 
     public List<MergeTopicModel> parse(String filename) {
         List<MergeTopicModel> mergeTopicModels = new ArrayList<>();
@@ -24,13 +26,20 @@ public class MergeParser {
         }
         String[] mergeTopicStrings = value.split(Pattern.quote("],"));
         for (String mergeString : mergeTopicStrings) {
-            mergeTopicModels.add(createObject(mergeString));
+            try {
+                mergeTopicModels.add(createObject(mergeString));
+            } catch (FormFormatException e) {
+                System.err.println("Exception: " + e.getMessage());
+            } catch (MergerException e) {
+                System.err.println("Exception: " + e.getMessage());
+            }
         }
         return mergeTopicModels;
     }
 
-    private MergeTopicModel createObject(String mergeString) {
+    private MergeTopicModel createObject(String mergeString) throws FormFormatException, MergerException {
         String[] merges = mergeString.split(Pattern.quote("]"));
+        if (merges.length > 2) throw new FormFormatException("Wrong form-format: " + mergeString);
         List<String> topics = new ArrayList<>();
         List<Map<String, String>> mergeMaps = new ArrayList<>();
         Map<String, List<String>> excludeColumn = new HashMap<>();
@@ -42,7 +51,8 @@ public class MergeParser {
         return new MergeTopicModel(topics, mergeMaps, excludeColumn, includeColumn);
     }
 
-    private void findExcludeAndInclude(Map<String, List<String>> excludeColumn, Map<String, List<String>> includeColumn, String findString, List<String> topics) {
+    private void findExcludeAndInclude(Map<String, List<String>> excludeColumn, Map<String, List<String>> includeColumn,
+                                       String findString, List<String> topics) throws FormFormatException, MergerException {
         findString = removeSpecialCharacter(findString);
         if (findString.length() <= 1) return;
         for (String topic : topics) {
@@ -61,19 +71,29 @@ public class MergeParser {
                 isInclude = false;
                 continue;
             }
+            if (!Pattern.matches(COLUMN_PATTERN, value))
+                throw new FormFormatException("Wrong form-format: " + findString);
             String[] columnString = value.split(Pattern.quote("."));
-            if (isInclude) {
+            if (columnString[1].equals("*")) continue;
+            if (!isInclude) {
+                if (!excludeColumn.containsKey(columnString[0]))
+                    throw new MergerException("Topic '" + columnString[0] + "' not found in list topics: " + findString);
                 excludeColumn.get(columnString[0]).add(columnString[1]);
-            } else includeColumn.get(columnString[0]).add(columnString[1]);
+            } else {
+                if (!includeColumn.containsKey(columnString[0]))
+                    throw new MergerException("Topic '" + columnString[0] + "' not found in list topics: " + findString);
+                includeColumn.get(columnString[0]).add(columnString[1]);
+            }
         }
         excludeColumn.values().removeIf(value -> value.size() == 0);
         includeColumn.values().removeIf(value -> value.size() == 0);
     }
 
-    private void findTopicAndColumnJoin(List<String> topics, List<Map<String, String>> mergeMaps, String[] findStrings) {
+    private void findTopicAndColumnJoin(List<String> topics, List<Map<String, String>> mergeMaps, String[] findStrings) throws FormFormatException {
         for (String merge : findStrings) {
             merge = removeSpecialCharacter(merge);
             StringTokenizer tokenizer = new StringTokenizer(merge);
+            if(tokenizer.countTokens() <= 2) throw new FormFormatException("Wrong form-format: "+ merge);
             boolean isColumnJoin = false;
             Map<String, String> mergeMap = new HashMap<>();
             while (tokenizer.hasMoreTokens()) {
@@ -86,6 +106,8 @@ public class MergeParser {
                     if (!topics.contains(value))
                         topics.add(value);
                 } else {
+                    if (!Pattern.matches(COLUMN_PATTERN, value))
+                        throw new FormFormatException("Wrong form-format: " + merge);
                     String[] columnString = value.split(Pattern.quote("."));
                     mergeMap.put(columnString[0], columnString[1]);
                 }
@@ -95,7 +117,7 @@ public class MergeParser {
     }
 
     private String removeSpecialCharacter(String value) {
-        value = value.replaceAll("[^a-zA-Z0-9\\s\\.\\_\\*+]", "");
+        value = value.replaceAll(REMOVE_CHARACTER_SPECIAL_PATTERN, "");
         return value;
     }
 
