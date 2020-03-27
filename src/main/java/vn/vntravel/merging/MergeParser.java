@@ -66,6 +66,8 @@ public class MergeParser {
                 excludeMap.get(columnString[0]).add(columnString[1]);
             } else includeMap.get(columnString[0]).add(columnString[1]);
         }
+        excludeMap.values().removeIf(entry -> entry.size() == 0);
+        includeMap.values().removeIf(entry -> entry.size() == 0);
     }
 
     private void findTopicAndColumnJoin(List<String> topics, List<Map<String, String>> mergeMaps, String[] findStrings) {

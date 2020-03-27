@@ -83,8 +83,6 @@ public class Streamx implements Runnable {
 
     public static void main(String[] args) {
         try {
-            MergeParser mergeParser = new MergeParser();
-            List<MergeTopicModel> mergeTopicModels = mergeParser.parse("merge.properties");
             Logging.setupLogBridging();
             StreamxConfig config = new StreamxConfig(args);
 
