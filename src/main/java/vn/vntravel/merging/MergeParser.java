@@ -28,9 +28,7 @@ public class MergeParser {
         for (String mergeString : mergeTopicStrings) {
             try {
                 mergeTopicModels.add(createObject(mergeString));
-            } catch (FormFormatException e) {
-                System.err.println("Exception: " + e.getMessage());
-            } catch (MergerException e) {
+            } catch (FormFormatException | MergerException e) {
                 System.err.println("Exception: " + e.getMessage());
             }
         }
@@ -38,21 +36,20 @@ public class MergeParser {
     }
 
     private MergeTopicModel createObject(String mergeString) throws FormFormatException, MergerException {
+        MergeTopicModel mergeModel = new MergeTopicModel();
         String[] merges = mergeString.split(Pattern.quote("]"));
         if (merges.length > 2) throw new FormFormatException("Wrong form-format: " + mergeString);
         List<String> topics = new ArrayList<>();
-        List<Map<String, String>> mergeMaps = new ArrayList<>();
-        Map<String, List<String>> excludeColumn = new HashMap<>();
-        Map<String, List<String>> includeColumn = new HashMap<>();
 
-        findTopicAndColumnJoin(topics, mergeMaps, merges[0].split(Pattern.quote("}")));
-        findExcludeAndInclude(excludeColumn, includeColumn, merges[1], topics);
+        findTopicAndColumnJoin(mergeModel, topics, merges[0].split(Pattern.quote("}")));
+        findExcludeAndInclude(mergeModel, merges[1], topics);
 
-        return new MergeTopicModel(topics, mergeMaps, excludeColumn, includeColumn);
+        return mergeModel;
     }
 
-    private void findExcludeAndInclude(Map<String, List<String>> excludeColumn, Map<String, List<String>> includeColumn,
-                                       String findString, List<String> topics) throws FormFormatException, MergerException {
+    private void findExcludeAndInclude(MergeTopicModel mergeTopicModel, String findString, List<String> topics) throws FormFormatException, MergerException {
+        Map<String, List<String>> excludeColumn = new HashMap<>();
+        Map<String, List<String>> includeColumn = new HashMap<>();
         findString = removeSpecialCharacter(findString);
         if (findString.length() <= 1) return;
         for (String topic : topics) {
@@ -87,19 +84,25 @@ public class MergeParser {
         }
         excludeColumn.values().removeIf(value -> value.size() == 0);
         includeColumn.values().removeIf(value -> value.size() == 0);
+        mergeTopicModel.setExcludeColumn(excludeColumn);
+        mergeTopicModel.setIncludeColumn(includeColumn);
     }
 
-    private void findTopicAndColumnJoin(List<String> topics, List<Map<String, String>> mergeMaps, String[] findStrings) throws FormFormatException {
+    private void findTopicAndColumnJoin(MergeTopicModel mergeTopicModel, List<String> topics, String[] findStrings) throws FormFormatException {
+        List<JoinTable> joinTables = new ArrayList<>();
         for (String merge : findStrings) {
             merge = removeSpecialCharacter(merge);
             StringTokenizer tokenizer = new StringTokenizer(merge);
             if(tokenizer.countTokens() <= 2) throw new FormFormatException("Wrong form-format: "+ merge);
             boolean isColumnJoin = false;
+            JoinTable joinTable = new JoinTable();
             Map<String, String> mergeMap = new HashMap<>();
             while (tokenizer.hasMoreTokens()) {
                 String value = tokenizer.nextToken();
-                if (value.equals("on")) {
+                if(value.equals(MergeTopicModel.TypeJoin.JOIN)||value.equals(MergeTopicModel.TypeJoin.LJOIN)
+                        ||value.equals(MergeTopicModel.TypeJoin.RJOIN)){
                     isColumnJoin = true;
+                    joinTable.setTypeJoin(value);
                     continue;
                 }
                 if (!isColumnJoin) {
@@ -112,8 +115,11 @@ public class MergeParser {
                     mergeMap.put(columnString[0], columnString[1]);
                 }
             }
-            mergeMaps.add(mergeMap);
+            joinTable.setMergeMap(mergeMap);
+            joinTables.add(joinTable);
         }
+        mergeTopicModel.setTopics(topics);
+        mergeTopicModel.setJoinTables(joinTables);
     }
 
     private String removeSpecialCharacter(String value) {

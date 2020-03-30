@@ -5,17 +5,26 @@ import java.util.Map;
 
 public class MergeTopicModel {
 
+    public static class TypeJoin {
+        public final static String RJOIN = "rjoin";
+        public final static String LJOIN = "ljoin";
+        public final static String JOIN = "join";
+    }
+
     private List<String> topics;
-    private List<Map<String, String>> mergerMaps;
+    private List<JoinTable> joinTables;
     private Map<String, List<String>> excludeColumn;
     private Map<String, List<String>> includeColumn;
 
-    public MergeTopicModel(List<String> topics, List<Map<String, String>> mergerMaps,
-                           Map<String, List<String>> excludeMap, Map<String, List<String>> includeMap) {
+    public MergeTopicModel() {
+    }
+
+    public MergeTopicModel(List<String> topics, List<JoinTable> joinTables, Map<String, List<String>> excludeMap,
+                           Map<String, List<String>> includeMap) {
         this.topics = topics;
-        this.mergerMaps = mergerMaps;
         this.excludeColumn = excludeMap;
         this.includeColumn = includeMap;
+        this.joinTables = joinTables;
     }
 
     public List<String> getTopics() {
@@ -24,14 +33,6 @@ public class MergeTopicModel {
 
     public void setTopics(List<String> topics) {
         this.topics = topics;
-    }
-
-    public List<Map<String, String>> getMergerMaps() {
-        return mergerMaps;
-    }
-
-    public void setMergerMaps(List<Map<String, String>> mergerMaps) {
-        this.mergerMaps = mergerMaps;
     }
 
     public Map<String, List<String>> getExcludeColumn() {
@@ -48,5 +49,13 @@ public class MergeTopicModel {
 
     public void setIncludeColumn(Map<String, List<String>> includeMap) {
         this.includeColumn = includeMap;
+    }
+
+    public List<JoinTable> getJoinTables() {
+        return joinTables;
+    }
+
+    public void setJoinTables(List<JoinTable> joinTables) {
+        this.joinTables = joinTables;
     }
 }
