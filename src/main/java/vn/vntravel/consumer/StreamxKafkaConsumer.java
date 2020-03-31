@@ -1,22 +1,22 @@
 package vn.vntravel.consumer;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vn.vntravel.StreamxContext;
+import vn.vntravel.schema.StreamxDeserializer;
 import vn.vntravel.util.StoppableTask;
 import vn.vntravel.util.StoppableTaskState;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 class StreamxKafkaCallback {
 
@@ -35,34 +35,34 @@ public class StreamxKafkaConsumer extends AbstractConsumer {
 
 class StreamxKafkaConsumerWorker extends AbstractAsyncConsumer implements Runnable, StoppableTask {
     static final Logger LOGGER = LoggerFactory.getLogger(StreamxKafkaConsumerWorker.class);
-    private final Consumer<String, String> kafka;
+    private static StreamxDeserializer<JsonNode> deserializer = new StreamxDeserializer<>();
+    private final Consumer<JsonNode, JsonNode> kafka;
     private final String topic;
     private final boolean interpolateTopic;
     private Thread thread;
     private StoppableTaskState taskState;
 
-    public StreamxKafkaConsumerWorker(StreamxContext context, String kafkaTopic, Consumer<String,String> consumer) {
+    public StreamxKafkaConsumerWorker(StreamxContext context, String kafkaTopic, Consumer<JsonNode, JsonNode> consumer) {
         super(context);
         this.kafka = consumer;
-
-        TopicPartition topicPartition = new TopicPartition("core_backoffice_test", 0);
-        List<TopicPartition> topics = Arrays.asList(topicPartition);
-        this.kafka.assign(topics);
-        this.kafka.seekToEnd(topics);
-        long current = consumer.position(topicPartition);
-        this.kafka.seek(topicPartition, current);
-
+        kafkaTopic = "core_aclicktogo_credit_history";
         if ( kafkaTopic == null ) {
             this.topic = "maxwell";
         } else {
             this.topic = kafkaTopic;
         }
         this.interpolateTopic = this.topic.contains("%");
-
+        List<PartitionInfo> partitions = consumer.partitionsFor(this.topic);
+        Set<TopicPartition> topicPartitions = partitions.stream()
+                .map(p -> new TopicPartition(p.topic(), p.partition())).collect(Collectors.toSet());
+        this.kafka.assign(topicPartitions);
+        consumer.committed(topicPartitions).forEach((key, value) -> {
+            if (value == null) this.kafka.seekToBeginning(Collections.singleton(key));
+        });
     }
 
     public StreamxKafkaConsumerWorker(StreamxContext context, Properties kafkaProperties, String kafkaTopic) {
-        this(context, kafkaTopic, new KafkaConsumer<>(kafkaProperties, new StringDeserializer(), new StringDeserializer()));
+        this(context, kafkaTopic, new KafkaConsumer<>(kafkaProperties, deserializer, deserializer));
     }
 
     @Override
@@ -70,7 +70,7 @@ class StreamxKafkaConsumerWorker extends AbstractAsyncConsumer implements Runnab
         this.thread = Thread.currentThread();
         while ( true ) {
             try {
-                ConsumerRecords<String, String> consumerRecords = kafka.poll(Duration.ofMillis(1000));
+                ConsumerRecords<JsonNode, JsonNode> consumerRecords = kafka.poll(Duration.ofMillis(1000));
                 //print each record.
                 consumerRecords.forEach(record -> {
                     System.out.println("Record Key " + record.key());
@@ -79,7 +79,7 @@ class StreamxKafkaConsumerWorker extends AbstractAsyncConsumer implements Runnab
                     System.out.println("Record offset " + record.offset());
                 });
                 // commits the offset of record to broker.
-                kafka.commitAsync();
+                kafka.commitSync();
             } catch (Exception e) {
                 e.printStackTrace();
             }

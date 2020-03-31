@@ -101,7 +101,7 @@ public class Streamx implements Runnable {
         try {
             org.apache.log4j.BasicConfigurator.configure();
             Logging.setupLogBridging();
-            args = new String[]{"--config=/home/lion/streamx/config.properties"};
+            args = new String[]{"--config=E:\\Tripi\\streamx\\config.properties"};
 
             StreamxConfig config = new StreamxConfig(args);
             if ( config.log_level != null )

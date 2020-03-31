@@ -30,3 +30,4 @@ out/*
 *.lock
 
 *.bin
+build/*
