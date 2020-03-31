@@ -8,8 +8,8 @@ public class StreamxSerde<T> implements Serde<T> {
     private final Serde<T> inner;
 
     @SuppressWarnings("unchecked")
-    public StreamxSerde() {
-        this.inner = Serdes.serdeFrom(new StringSerializer(), new StreamxDeserializer());
+    public StreamxSerde(Class<T> clazz) {
+        this.inner = Serdes.serdeFrom(new StringSerializer(), new StreamxDeserializer(clazz));
     }
 
     @Override

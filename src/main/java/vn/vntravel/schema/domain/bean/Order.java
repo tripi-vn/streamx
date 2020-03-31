@@ -1,22 +1,14 @@
 package vn.vntravel.schema.domain.bean;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.avro.Schema;
-import org.apache.avro.specific.SpecificRecord;
 
-public class Order implements SpecificRecord {
+import java.io.Serializable;
 
-    @Override
-    public void put(int i, Object v) {
-
-    }
-
-    @Override
-    public Object get(int i) {
-        return null;
-    }
-
-    @Override
-    public Schema getSchema() {
-        return null;
-    }
+@Getter
+@Setter
+public class Order implements Serializable {
+    private String database;
+    private String table;
 }

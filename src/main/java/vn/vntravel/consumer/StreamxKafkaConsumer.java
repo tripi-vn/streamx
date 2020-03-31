@@ -1,6 +1,5 @@
 package vn.vntravel.consumer;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -10,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vn.vntravel.StreamxContext;
 import vn.vntravel.schema.StreamxDeserializer;
+import vn.vntravel.schema.domain.bean.Order;
 import vn.vntravel.util.StoppableTask;
 import vn.vntravel.util.StoppableTaskState;
 
@@ -35,14 +35,14 @@ public class StreamxKafkaConsumer extends AbstractConsumer {
 
 class StreamxKafkaConsumerWorker extends AbstractAsyncConsumer implements Runnable, StoppableTask {
     static final Logger LOGGER = LoggerFactory.getLogger(StreamxKafkaConsumerWorker.class);
-    private static StreamxDeserializer<JsonNode> deserializer = new StreamxDeserializer<>();
-    private final Consumer<JsonNode, JsonNode> kafka;
+    private static StreamxDeserializer<Order> deserializer = new StreamxDeserializer<>(Order.class);
+    private final Consumer<Order, Order> kafka;
     private final String topic;
     private final boolean interpolateTopic;
     private Thread thread;
     private StoppableTaskState taskState;
 
-    public StreamxKafkaConsumerWorker(StreamxContext context, String kafkaTopic, Consumer<JsonNode, JsonNode> consumer) {
+    public StreamxKafkaConsumerWorker(StreamxContext context, String kafkaTopic, Consumer<Order, Order> consumer) {
         super(context);
         this.kafka = consumer;
         kafkaTopic = "core_aclicktogo_credit_history";
@@ -70,7 +70,7 @@ class StreamxKafkaConsumerWorker extends AbstractAsyncConsumer implements Runnab
         this.thread = Thread.currentThread();
         while ( true ) {
             try {
-                ConsumerRecords<JsonNode, JsonNode> consumerRecords = kafka.poll(Duration.ofMillis(1000));
+                ConsumerRecords<Order, Order> consumerRecords = kafka.poll(Duration.ofMillis(1000));
                 //print each record.
                 consumerRecords.forEach(record -> {
                     System.out.println("Record Key " + record.key());
