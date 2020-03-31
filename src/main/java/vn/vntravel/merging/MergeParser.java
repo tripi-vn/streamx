@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class MergeParser {
 
     private Properties properties;
-    private String COLUMN_PATTERN = "^\\w+\\.\\w+|\\w+.\\*$";
+    private String COLUMN_PATTERN = "^(\\w+\\.\\w+)|\\*$";
     private String REMOVE_CHARACTER_SPECIAL_PATTERN = "[^a-zA-Z0-9\\s\\.\\_\\*+]";
 
     public List<MergeTopicModel> parse(String filename) {
@@ -70,8 +70,8 @@ public class MergeParser {
             }
             if (!Pattern.matches(COLUMN_PATTERN, value))
                 throw new FormFormatException("Wrong form-format: " + findString);
+            if (value.length() == 1) continue;
             String[] columnString = value.split(Pattern.quote("."));
-            if (columnString[1].equals("*")) continue;
             if (!isInclude) {
                 if (!excludeColumn.containsKey(columnString[0]))
                     throw new MergerException("Topic '" + columnString[0] + "' not found in list topics: " + findString);
@@ -93,14 +93,14 @@ public class MergeParser {
         for (String merge : findStrings) {
             merge = removeSpecialCharacter(merge);
             StringTokenizer tokenizer = new StringTokenizer(merge);
-            if(tokenizer.countTokens() <= 2) throw new FormFormatException("Wrong form-format: "+ merge);
+            if (tokenizer.countTokens() <= 2) throw new FormFormatException("Wrong form-format: " + merge);
             boolean isColumnJoin = false;
             JoinTable joinTable = new JoinTable();
             Map<String, String> mergeMap = new HashMap<>();
             while (tokenizer.hasMoreTokens()) {
                 String value = tokenizer.nextToken();
-                if(value.equals(MergeTopicModel.TypeJoin.JOIN)||value.equals(MergeTopicModel.TypeJoin.LJOIN)
-                        ||value.equals(MergeTopicModel.TypeJoin.RJOIN)){
+                if (value.equals(TypeJoin.JOIN.getType()) || value.equals(TypeJoin.LJOIN.getType())
+                        || value.equals(TypeJoin.RJOIN.getType())) {
                     isColumnJoin = true;
                     joinTable.setTypeJoin(value);
                     continue;

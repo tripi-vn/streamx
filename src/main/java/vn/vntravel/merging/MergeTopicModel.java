@@ -5,12 +5,6 @@ import java.util.Map;
 
 public class MergeTopicModel {
 
-    public static class TypeJoin {
-        public final static String RJOIN = "rjoin";
-        public final static String LJOIN = "ljoin";
-        public final static String JOIN = "join";
-    }
-
     private List<String> topics;
     private List<JoinTable> joinTables;
     private Map<String, List<String>> excludeColumn;

@@ -3,18 +3,18 @@ package vn.vntravel.merging;
 import java.util.Map;
 
 public class JoinTable {
-    private String TypeJoin;
+    private TypeJoin typeJoin;
     private Map<String, String> mergeMap;
 
     public JoinTable() {
     }
 
     public String getTypeJoin() {
-        return TypeJoin;
+        return typeJoin.getType();
     }
 
     public void setTypeJoin(String typeJoin) {
-        TypeJoin = typeJoin;
+        this.typeJoin = TypeJoin.fromType(typeJoin);
     }
 
     public Map<String, String> getMergeMap() {
