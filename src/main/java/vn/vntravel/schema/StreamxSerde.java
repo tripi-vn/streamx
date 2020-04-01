@@ -10,12 +10,12 @@ public class StreamxSerde<T> implements Serde<T> {
 
     @SuppressWarnings("unchecked")
     public StreamxSerde(Class<T> clazz) {
-        this.inner = Serdes.serdeFrom(new StringSerializer(), new StreamxDeserializer(clazz));
+        this.inner = Serdes.serdeFrom(new StreamxSerializer(clazz), new StreamxDeserializer(clazz));
     }
 
     @SuppressWarnings("unchecked")
     public StreamxSerde(Class<T> clazz, Map<DeserializationFeature, Boolean> deserializationFeatures) {
-        this.inner = Serdes.serdeFrom(new StringSerializer(), new StreamxDeserializer(clazz, deserializationFeatures));
+        this.inner = Serdes.serdeFrom(new StreamxSerializer(clazz), new StreamxDeserializer(clazz, deserializationFeatures));
     }
 
     @Override

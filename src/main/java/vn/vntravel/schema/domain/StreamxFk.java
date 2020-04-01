@@ -35,6 +35,18 @@ public class StreamxFk implements Serializable {
         this.table = table;
     }
 
+    public String getDatabase() {
+        return database;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public Object getFkId() {
+        return fkId;
+    }
+
     /**
      * Compare foreign key value
      * @param v
