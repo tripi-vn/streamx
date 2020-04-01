@@ -1,5 +1,6 @@
 package vn.vntravel.schema;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.apache.kafka.common.serialization.*;
 
 import java.util.Map;
@@ -10,6 +11,11 @@ public class StreamxSerde<T> implements Serde<T> {
     @SuppressWarnings("unchecked")
     public StreamxSerde(Class<T> clazz) {
         this.inner = Serdes.serdeFrom(new StringSerializer(), new StreamxDeserializer(clazz));
+    }
+
+    @SuppressWarnings("unchecked")
+    public StreamxSerde(Class<T> clazz, Map<DeserializationFeature, Boolean> deserializationFeatures) {
+        this.inner = Serdes.serdeFrom(new StringSerializer(), new StreamxDeserializer(clazz, deserializationFeatures));
     }
 
     @Override
