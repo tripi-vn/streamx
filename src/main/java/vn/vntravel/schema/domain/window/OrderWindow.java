@@ -9,7 +9,7 @@ public class OrderWindow implements Serializable {
     private Order order;
     private OrderItem orderItem;
 
-    public OrderWindow(Order order, OrderItem orderItem) {
+    public OrderWindow(OrderItem orderItem, Order order) {
         this.order = order;
         this.orderItem = orderItem;
     }

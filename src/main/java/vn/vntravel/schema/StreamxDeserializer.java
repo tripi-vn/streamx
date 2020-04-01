@@ -34,6 +34,10 @@ public class StreamxDeserializer<T extends Serializable> implements Deserializer
             if (Bean.class.isAssignableFrom(clazz)) {
                 JavaType type = objectMapper.getTypeFactory().constructParametricType(BeanShell.class, clazz);
                 BeanShell<T> beanShell = objectMapper.readValue(bytes, type);
+                Bean bean = (Bean) beanShell.getData();
+                bean._set(beanShell.getSchema());
+                if (beanShell.getOld() != null)
+                    bean._setOld((Bean) beanShell.getOld());
                 return beanShell.getData();
             } else {
                 data = objectMapper.readValue(bytes, clazz);

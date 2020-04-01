@@ -1,6 +1,7 @@
 package vn.vntravel.consumer;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import javafx.util.Pair;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -9,6 +10,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.*;
@@ -100,17 +102,22 @@ class StreamxKafkaConsumerWorker extends AbstractAsyncConsumer implements Runnab
         final StreamxSerde<StreamxFk> fkOrderItemSerde = new StreamxSerde<>(StreamxFk.class);
         final StreamxSerde<StreamxFk> fkOrderWindowSerde = new StreamxSerde<>(StreamxFk.class);
 
-        final KStream<StreamxFk, OrderItem> orderItemStream = builder.stream("core_aclicktogo_orders_items", Consumed.with(fkOrderItemSerde, orderItemSerde));
-        final GlobalKTable<StreamxFk, Order>
-                orders = builder.globalTable("core_aclicktogo_orders", Materialized.<StreamxFk, Order, KeyValueStore<Bytes, byte[]>>as(ORDER_ITEM_STORE)
+        final KStream<StreamxFk, OrderItem> orderItems = builder.stream("core_aclicktogo_orders_items",
+                Consumed.with(fkOrderItemSerde, orderItemSerde));
+        final KTable<StreamxFk, Order>
+                orders = builder.table("core_aclicktogo_orders", Materialized.<StreamxFk, Order, KeyValueStore<Bytes, byte[]>>as(ORDER_ITEM_STORE)
                 .withKeySerde(fkOrderSerde)
                 .withValueSerde(orderSerde));
 
-        final KStream<StreamxFk, OrderWindow> orderWindowStream = orderItemStream.join(orders,
-                (orderItemKey, orderItem) -> new StreamxFk(orderItem.getOrderId()),
-                (orderItem, order) -> new OrderWindow(order, orderItem));
+        final KStream<StreamxFk, OrderWindow> orderWindows = orderItems
+                .join(orders, OrderWindow::new);
 
-        orderWindowStream.to(ORDER_ITEM_INFO_TOPIC, Produced.with(fkOrderWindowSerde, orderWindowSerde));
+//        final KStream<StreamxFk, OrderWindow> orderWindowStream = orderItemStream.join(orders, new
+//        final KStream<StreamxFk, OrderWindow> orderWindowStream = orderItemStream.join(orders,
+//                (orderItemKey, orderItem) -> new StreamxFk(orderItem.getOrderId()),
+//                (orderItem, order) -> new OrderWindow(order, orderItem));
+
+        orderWindows.to(ORDER_ITEM_INFO_TOPIC, Produced.with(fkOrderWindowSerde, orderWindowSerde));
         KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), kafkaProperties);
 
         kafkaStreams.cleanUp();
