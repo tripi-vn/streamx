@@ -2,7 +2,9 @@ package vn.vntravel;
 
 import com.djdch.log4j.StaticShutdownCallbackRegistry;
 import org.slf4j.LoggerFactory;
+import vn.vntravel.consumer.AbstractConsumer;
 import vn.vntravel.replication.BrokerConnectorReplicator;
+import vn.vntravel.replication.Position;
 import vn.vntravel.replication.Replicator;
 import vn.vntravel.util.Logging;
 import org.slf4j.Logger;
@@ -56,8 +58,25 @@ public class Streamx implements Runnable {
     protected void onReplicatorStart() {}
     protected void onReplicatorEnd() {}
 
+    static String bootString = "Streamx v%s is booting (%s), starting at %s";
+    private void logBanner(AbstractConsumer consumer, Position initialPosition) {
+        String consumerName = consumer.getClass().getSimpleName();
+        LOGGER.info(String.format(bootString, getStreamxVersion(), consumerName, initialPosition.toString()));
+    }
+
+    public String getStreamxVersion() {
+        String packageVersion = getClass().getPackage().getImplementationVersion();
+        if ( packageVersion == null )
+            return "??";
+        else
+            return packageVersion;
+    }
+
     private void startInner() throws Exception {
+        AbstractConsumer consumer = this.context.getConsumer();
+
         this.replicator = new BrokerConnectorReplicator(config.clientID,
+                consumer,
                 context.getHeartbeatNotifier());
 
         context.setReplicator(replicator);
@@ -80,21 +99,20 @@ public class Streamx implements Runnable {
 
     public static void main(String[] args) {
         try {
+            org.apache.log4j.BasicConfigurator.configure();
             Logging.setupLogBridging();
-            StreamxConfig config = new StreamxConfig(args);
+            args = new String[]{"--config=E:\\Tripi\\streamx\\config.properties"};
 
+            StreamxConfig config = new StreamxConfig(args);
             if ( config.log_level != null )
                 Logging.setLevel(config.log_level);
 
             final Streamx streamx = new Streamx(config);
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    streamx.terminate();
-                    StaticShutdownCallbackRegistry.invoke();
-                }
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                streamx.terminate();
+                StaticShutdownCallbackRegistry.invoke();
+            }));
 
             streamx.start();
         } catch ( SQLException e ) {

@@ -12,8 +12,8 @@ public class MergeParser {
     private String COLUMN_PATTERN = "^(\\w+\\.\\w+)|\\*$";
     private String REMOVE_CHARACTER_SPECIAL_PATTERN = "[^a-zA-Z0-9\\s\\.\\_\\*+]";
 
-    public List<MergeTopicModel> parse(String filename) {
-        List<MergeTopicModel> mergeTopicModels = new ArrayList<>();
+    public List<MergeTopic> parse(String filename) {
+        List<MergeTopic> mergeTopics = new ArrayList<>();
         this.properties = readPropertiesFile(filename);
         if (properties.size() == 0) {
             System.err.println("File empty " + filename);
@@ -27,16 +27,16 @@ public class MergeParser {
         String[] mergeTopicStrings = value.split(Pattern.quote("],"));
         for (String mergeString : mergeTopicStrings) {
             try {
-                mergeTopicModels.add(createObject(mergeString));
+                mergeTopics.add(createObject(mergeString));
             } catch (FormFormatException | MergerException e) {
                 System.err.println("Exception: " + e.getMessage());
             }
         }
-        return mergeTopicModels;
+        return mergeTopics;
     }
 
-    private MergeTopicModel createObject(String mergeString) throws FormFormatException, MergerException {
-        MergeTopicModel mergeModel = new MergeTopicModel();
+    private MergeTopic createObject(String mergeString) throws FormFormatException, MergerException {
+        MergeTopic mergeModel = new MergeTopic();
         String[] merges = mergeString.split(Pattern.quote("]"));
         if (merges.length > 2) throw new FormFormatException("Wrong form-format: " + mergeString);
         List<String> topics = new ArrayList<>();
@@ -47,7 +47,7 @@ public class MergeParser {
         return mergeModel;
     }
 
-    private void findExcludeAndInclude(MergeTopicModel mergeTopicModel, String findString, List<String> topics) throws FormFormatException, MergerException {
+    private void findExcludeAndInclude(MergeTopic mergeTopic, String findString, List<String> topics) throws FormFormatException, MergerException {
         Map<String, List<String>> excludeColumn = new HashMap<>();
         Map<String, List<String>> includeColumn = new HashMap<>();
         findString = removeSpecialCharacter(findString);
@@ -84,11 +84,11 @@ public class MergeParser {
         }
         excludeColumn.values().removeIf(value -> value.size() == 0);
         includeColumn.values().removeIf(value -> value.size() == 0);
-        mergeTopicModel.setExcludeColumn(excludeColumn);
-        mergeTopicModel.setIncludeColumn(includeColumn);
+        mergeTopic.setExcludeColumn(excludeColumn);
+        mergeTopic.setIncludeColumn(includeColumn);
     }
 
-    private void findTopicAndColumnJoin(MergeTopicModel mergeTopicModel, List<String> topics, String[] findStrings) throws FormFormatException {
+    private void findTopicAndColumnJoin(MergeTopic mergeTopic, List<String> topics, String[] findStrings) throws FormFormatException {
         List<JoinTable> joinTables = new ArrayList<>();
         for (String merge : findStrings) {
             merge = removeSpecialCharacter(merge);
@@ -118,8 +118,8 @@ public class MergeParser {
             joinTable.setMergeMap(mergeMap);
             joinTables.add(joinTable);
         }
-        mergeTopicModel.setTopics(topics);
-        mergeTopicModel.setJoinTables(joinTables);
+        mergeTopic.setTopics(topics);
+        mergeTopic.setJoinTables(joinTables);
     }
 
     private String removeSpecialCharacter(String value) {
